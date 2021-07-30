@@ -20,108 +20,140 @@ namespace TestTask
         }
 
         /// <summary>
-        /// Тестирование запроса времени сервера формате JSON.
+        /// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ Р·Р°РїСЂРѕСЃР° РєРѕРЅС„РёРіСѓСЂР°С†РёРё РєР°РЅР°Р»РѕРІ СЃРµСЂРІРµСЂР° РІ XML С„РѕСЂРјР°С‚Рµ.
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task TestРЎonfigexXml()
+        {
+            #region arrange
+            // URI, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ Р·Р°РїСЂРѕСЃ
+            string requestUri = "http://demo.macroscop.com:8080/configex?login=root&password=";
+
+            // РјРёРЅРёРјР°Р»СЊРЅРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РєР°РЅР°Р»РѕРІ РІ РєРѕРЅС„РёРіСѓСЂР°С†РёРё, С‡С‚РѕР±С‹ С‚РµСЃС‚ Р±С‹Р» РїСЂРѕР№РґРµС‚
+            const int minChannelsToPass = 6;
+            #endregion
+
+            #region act
+            // С‚РµРєСЃС‚ РѕС‚РІРµС‚Р° РІ РІРёРґРµ СЃС‚СЂРѕРєРё
+            string responseString = await _client.GetStringAsync(requestUri);
+
+            // РѕС‚РІРµС‚ РІ РІРёРґРµ XML-РґРѕРєСѓРјРµРЅС‚Р°
+            XDocument responseXml = XDocument.Parse(responseString);
+
+            // РєРѕР»РёС‡РµСЃС‚РІРѕ РєР°РЅР°Р»РѕРІ РІ РїРѕР»СѓС‡РµРЅРЅРѕР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё
+            int channels = responseXml.Root.Element("Channels").Elements().Count(element => element.Name.LocalName == "ChannelInfo");
+            #endregion
+
+            #region assert
+            // РўРµСЃС‚ СЃС‡РёС‚Р°РµС‚СЃСЏ РЅРµ РїСЂРѕРІР°Р»РµРЅРЅС‹Рј, РµСЃР»Рё РІ РїРѕР»СѓС‡РµРЅРЅРѕР№ РєРѕРЅС„РёРіСѓСЂР°С†РёРё РЅРµ РјРµРЅСЊС€Рµ 6 РєР°РЅР°Р»РѕРІ
+            Assert.GreaterOrEqual(channels, minChannelsToPass);
+            #endregion
+        }
+
+        /// <summary>
+        /// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ Р·Р°РїСЂРѕСЃР° РІСЂРµРјРµРЅРё СЃРµСЂРІРµСЂР° С„РѕСЂРјР°С‚Рµ JSON.
         /// </summary>
         /// <returns></returns>
         [Test]
         public async Task TestGetTimeJson()
         {
             #region arrange
-            // URI, по которому отправляется запрос
+            // URI, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ Р·Р°РїСЂРѕСЃ
             string requestUri = "http://demo.macroscop.com:8080/command?type=gettime&login=root&password=&responsetype=json";
 
-            // допустимая погрешность между временем на сервере и локальным
+            // РґРѕРїСѓСЃС‚РёРјР°СЏ РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ РјРµР¶РґСѓ РІСЂРµРјРµРЅРµРј РЅР° СЃРµСЂРІРµСЂРµ Рё Р»РѕРєР°Р»СЊРЅС‹Рј
             TimeSpan inaccuracy = TimeSpan.FromSeconds(15);
 
-            // локальное время
+            // Р»РѕРєР°Р»СЊРЅРѕРµ РІСЂРµРјСЏ
             DateTime localTime = DateTime.Now;
             #endregion
 
             #region act
-            // текст ответа в виде строки
+            // С‚РµРєСЃС‚ РѕС‚РІРµС‚Р° РІ РІРёРґРµ СЃС‚СЂРѕРєРё
             string responseString = await GetResponseStringAsync(requestUri);
 
-            // параметры для преобразования в json и из него
+            // РїР°СЂР°РјРµС‚СЂС‹ РґР»СЏ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ РІ json Рё РёР· РЅРµРіРѕ
             JsonSerializerOptions options = new JsonSerializerOptions();
-            // добавляем пользовательский преобразователь для DateTime
+            // РґРѕР±Р°РІР»СЏРµРј РїРѕР»СЊР·РѕРІР°С‚РµР»СЊСЃРєРёР№ РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚РµР»СЊ РґР»СЏ DateTime
             options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
 
-            // время на сервере из ответа
+            // РІСЂРµРјСЏ РЅР° СЃРµСЂРІРµСЂРµ РёР· РѕС‚РІРµС‚Р°
             DateTime serverTime = JsonSerializer.Deserialize<DateTime>(responseString, options);
             #endregion
 
             #region assert
-            // Тест не провальный, если время в ответе не превышает локальное время на 15 секунд
+            // РўРµСЃС‚ РЅРµ РїСЂРѕРІР°Р»СЊРЅС‹Р№, РµСЃР»Рё РІСЂРµРјСЏ РІ РѕС‚РІРµС‚Рµ РЅРµ РїСЂРµРІС‹С€Р°РµС‚ Р»РѕРєР°Р»СЊРЅРѕРµ РІСЂРµРјСЏ РЅР° 15 СЃРµРєСѓРЅРґ
             Assert.LessOrEqual(serverTime, localTime + inaccuracy);
             #endregion
         }
 
         /// <summary>
-        /// Тестирование запроса времени сервера в формате XML.
+        /// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ Р·Р°РїСЂРѕСЃР° РІСЂРµРјРµРЅРё СЃРµСЂРІРµСЂР° РІ С„РѕСЂРјР°С‚Рµ XML.
         /// </summary>
         /// <returns></returns>
         [Test]
         public async Task TestGetTimeXml()
         {
             #region arrange
-            // URI, по которому отправляется запрос
+            // URI, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ Р·Р°РїСЂРѕСЃ
             string requestUri = "http://demo.macroscop.com:8080/command?type=gettime&login=root&password=";
 
-            // допустимая погрешность между временем на сервере и локальным
+            // РґРѕРїСѓСЃС‚РёРјР°СЏ РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ РјРµР¶РґСѓ РІСЂРµРјРµРЅРµРј РЅР° СЃРµСЂРІРµСЂРµ Рё Р»РѕРєР°Р»СЊРЅС‹Рј
             TimeSpan inaccuracy = TimeSpan.FromSeconds(15);
 
-            // локальное время
+            // Р»РѕРєР°Р»СЊРЅРѕРµ РІСЂРµРјСЏ
             DateTime localTime = DateTime.Now;
             #endregion
 
             #region act
-            // текст ответа в виде строки
+            // С‚РµРєСЃС‚ РѕС‚РІРµС‚Р° РІ РІРёРґРµ СЃС‚СЂРѕРєРё
             string responseString = await GetResponseStringAsync(requestUri);
 
-            // ответ в виде XML-документа
+            // РѕС‚РІРµС‚ РІ РІРёРґРµ XML-РґРѕРєСѓРјРµРЅС‚Р°
             XDocument responseXml = XDocument.Parse(responseString);
 
-            // время на сервере из ответа
+            // РІСЂРµРјСЏ РЅР° СЃРµСЂРІРµСЂРµ РёР· РѕС‚РІРµС‚Р°
             DateTime serverTime = DateTime.Parse(responseXml.Element("string").Value);
             #endregion
 
             #region assert
-            // Тест не провальный, если время в ответе не превышает локальное время на 15 секунд
+            // РўРµСЃС‚ РЅРµ РїСЂРѕРІР°Р»СЊРЅС‹Р№, РµСЃР»Рё РІСЂРµРјСЏ РІ РѕС‚РІРµС‚Рµ РЅРµ РїСЂРµРІС‹С€Р°РµС‚ Р»РѕРєР°Р»СЊРЅРѕРµ РІСЂРµРјСЏ РЅР° 15 СЃРµРєСѓРЅРґ
             Assert.LessOrEqual(serverTime, localTime + inaccuracy);
             #endregion
         }
 
         /// <summary>
-        /// Отправка запроса GET согласно указанному URI и возврат текста ответа в виде строки в асинхронной операции.
+        /// РћС‚РїСЂР°РІРєР° Р·Р°РїСЂРѕСЃР° GET СЃРѕРіР»Р°СЃРЅРѕ СѓРєР°Р·Р°РЅРЅРѕРјСѓ URI Рё РІРѕР·РІСЂР°С‚ С‚РµРєСЃС‚Р° РѕС‚РІРµС‚Р° РІ РІРёРґРµ СЃС‚СЂРѕРєРё РІ Р°СЃРёРЅС…СЂРѕРЅРЅРѕР№ РѕРїРµСЂР°С†РёРё.
         /// </summary>
-        /// <param name="requestUri">URI, по которому отправляется запрос.</param>
-        /// <returns>Объект задачи, представляющий асинхронную операцию.</returns>
+        /// <param name="requestUri">URI, РїРѕ РєРѕС‚РѕСЂРѕРјСѓ РѕС‚РїСЂР°РІР»СЏРµС‚СЃСЏ Р·Р°РїСЂРѕСЃ.</param>
+        /// <returns>РћР±СЉРµРєС‚ Р·Р°РґР°С‡Рё, РїСЂРµРґСЃС‚Р°РІР»СЏСЋС‰РёР№ Р°СЃРёРЅС…СЂРѕРЅРЅСѓСЋ РѕРїРµСЂР°С†РёСЋ.</returns>
         private async Task<string> GetResponseStringAsync(string requestUri)
         {
-            // получение текста ответа в виде строки
+            // РїРѕР»СѓС‡РµРЅРёРµ С‚РµРєСЃС‚Р° РѕС‚РІРµС‚Р° РІ РІРёРґРµ СЃС‚СЂРѕРєРё
             string responseString = await _client.GetStringAsync(requestUri);
 
-            // возвращаем ответ, удалив из него "лишнее"
+            // РІРѕР·РІСЂР°С‰Р°РµРј РѕС‚РІРµС‚, СѓРґР°Р»РёРІ РёР· РЅРµРіРѕ "Р»РёС€РЅРµРµ"
             return RemoveExtraLines(responseString);
         }
 
         /// <summary>
-        /// Удаление строк "Timestamp", "Error code", "Message", "Body-length" из ответа.
+        /// РЈРґР°Р»РµРЅРёРµ СЃС‚СЂРѕРє "Timestamp", "Error code", "Message", "Body-length" РёР· РѕС‚РІРµС‚Р°.
         /// </summary>
-        /// <param name="responseString">Ответ сервера в виде строки.</param>
-        /// <param name="sep">Разделитель.</param>
-        /// <returns>Ответ сервера в виде строки, конфертируемой в XML или JSON.</returns>
+        /// <param name="responseString">РћС‚РІРµС‚ СЃРµСЂРІРµСЂР° РІ РІРёРґРµ СЃС‚СЂРѕРєРё.</param>
+        /// <param name="sep">Р Р°Р·РґРµР»РёС‚РµР»СЊ.</param>
+        /// <returns>РћС‚РІРµС‚ СЃРµСЂРІРµСЂР° РІ РІРёРґРµ СЃС‚СЂРѕРєРё, РєРѕРЅС„РµСЂС‚РёСЂСѓРµРјРѕР№ РІ XML РёР»Рё JSON.</returns>
         private static string RemoveExtraLines(string responseString, string sep = "\r\n")
         {
-            // индекс первой строки и количество строк для удаления
+            // РёРЅРґРµРєСЃ РїРµСЂРІРѕР№ СЃС‚СЂРѕРєРё Рё РєРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє РґР»СЏ СѓРґР°Р»РµРЅРёСЏ
             const int firstLineIndex = 0, linesToRemove = 4;
 
-            // разделяем ответ на отдельные строки по заданному разделителю
+            // СЂР°Р·РґРµР»СЏРµРј РѕС‚РІРµС‚ РЅР° РѕС‚РґРµР»СЊРЅС‹Рµ СЃС‚СЂРѕРєРё РїРѕ Р·Р°РґР°РЅРЅРѕРјСѓ СЂР°Р·РґРµР»РёС‚РµР»СЋ
             var responseLines = responseString.Split(new string[] { sep }, StringSplitOptions.RemoveEmptyEntries).ToList();
-            // удаление строк
+            // СѓРґР°Р»РµРЅРёРµ СЃС‚СЂРѕРє
             responseLines.RemoveRange(firstLineIndex, linesToRemove);
 
-            // соединемя оставшиеся строки в одну и возвращаем её
+            // СЃРѕРµРґРёРЅРµРјСЏ РѕСЃС‚Р°РІС€РёРµСЃСЏ СЃС‚СЂРѕРєРё РІ РѕРґРЅСѓ Рё РІРѕР·РІСЂР°С‰Р°РµРј РµС‘
             return string.Join(null, responseLines);
         }
     }
