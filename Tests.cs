@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -16,6 +17,43 @@ namespace TestTask
         public void SetUp()
         {
             _client = new HttpClient();
+        }
+
+        /// <summary>
+        /// Тестирование запроса времени сервера формате JSON.
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task TestGetTimeJson()
+        {
+            #region arrange
+            // URI, по которому отправляется запрос
+            string requestUri = "http://demo.macroscop.com:8080/command?type=gettime&login=root&password=&responsetype=json";
+
+            // допустимая погрешность между временем на сервере и локальным
+            TimeSpan inaccuracy = TimeSpan.FromSeconds(15);
+
+            // локальное время
+            DateTime localTime = DateTime.Now;
+            #endregion
+
+            #region act
+            // текст ответа в виде строки
+            string responseString = await GetResponseStringAsync(requestUri);
+
+            // параметры для преобразования в json и из него
+            JsonSerializerOptions options = new JsonSerializerOptions();
+            // добавляем пользовательский преобразователь для DateTime
+            options.Converters.Add(new DateTimeConverterUsingDateTimeParse());
+
+            // время на сервере из ответа
+            DateTime serverTime = JsonSerializer.Deserialize<DateTime>(responseString, options);
+            #endregion
+
+            #region assert
+            // Тест не провальный, если время в ответе не превышает локальное время на 15 секунд
+            Assert.LessOrEqual(serverTime, localTime + inaccuracy);
+            #endregion
         }
 
         /// <summary>
