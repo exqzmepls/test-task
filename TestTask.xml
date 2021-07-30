@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-run id="0" name="TestTask.dll" fullname="D:\projects\TestTask\bin\Debug\net472\TestTask.dll" runstate="Runnable" testcasecount="3" result="Failed" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="3" engine-version="3.12.0.0" clr-version="4.0.30319.42000" start-time="2021-07-30 18:39:40Z" end-time="2021-07-30 18:39:41Z" duration="0.907695">
+  <command-line><![CDATA["C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\IDE\Extensions\TestPlatform\Extensions\..//testhost.net472.x86.exe"  --port 49722 --endpoint 127.0.0.1:049722 --role client --parentprocessid 19620 --telemetryoptedin true]]></command-line>
+  <filter>
+    <or>
+      <test>TestTask.Tests.TestGetTimeJson</test>
+      <test>TestTask.Tests.TestGetTimeXml</test>
+      <test>TestTask.Tests.TestСonfigexXml</test>
+    </or>
+  </filter>
+  <test-suite type="Assembly" id="0-1004" name="TestTask.dll" fullname="D:\projects\TestTask\bin\Debug\net472\TestTask.dll" runstate="Runnable" testcasecount="3" result="Failed" site="Child" start-time="2021-07-30T18:39:40.3821494Z" end-time="2021-07-30T18:39:41.2598788Z" duration="0.876299" total="3" passed="2" failed="1" warnings="0" inconclusive="0" skipped="0" asserts="3">
+    <environment framework-version="3.13.2.0" clr-version="4.0.30319.42000" os-version="Microsoft Windows NT 10.0.19042.0" platform="Win32NT" cwd="C:\Users\User\AppData\Local\Temp" machine-name="LAPTOP-I4MVGP23" user="User" user-domain="LAPTOP-I4MVGP23" culture="ru-RU" uiculture="ru-RU" os-architecture="x86" />
+    <settings>
+      <setting name="SynchronousEvents" value="False" />
+      <setting name="RandomSeed" value="526171506" />
+      <setting name="SkipNonTestAssemblies" value="True" />
+      <setting name="ProcessModel" value="InProcess" />
+      <setting name="DomainUsage" value="Single" />
+      <setting name="DefaultTestNamePattern" value="{m}{a}" />
+      <setting name="WorkDirectory" value="D:\projects\TestTask\bin\Debug\net472" />
+      <setting name="ImageRuntimeVersion" value="4.0.30319" />
+      <setting name="ImageTargetFrameworkName" value=".NETFramework,Version=v4.7.2" />
+      <setting name="ImageRequiresX86" value="False" />
+      <setting name="ImageRequiresDefaultAppDomainAssemblyResolver" value="False" />
+      <setting name="TargetRuntimeFramework" value="net-4.0" />
+      <setting name="NumberOfTestWorkers" value="8" />
+    </settings>
+    <properties>
+      <property name="_PID" value="10152" />
+      <property name="_APPDOMAIN" value="domain-3c4be83b-TestTask.dll" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="TestSuite" id="0-1005" name="TestTask" fullname="TestTask" runstate="Runnable" testcasecount="3" result="Failed" site="Child" start-time="2021-07-30T18:39:40.3988606Z" end-time="2021-07-30T18:39:41.2598788Z" duration="0.861168" total="3" passed="2" failed="1" warnings="0" inconclusive="0" skipped="0" asserts="3">
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestFixture" id="0-1000" name="Tests" fullname="TestTask.Tests" classname="TestTask.Tests" runstate="Runnable" testcasecount="3" result="Failed" site="Child" start-time="2021-07-30T18:39:40.4008605Z" end-time="2021-07-30T18:39:41.2588772Z" duration="0.858673" total="3" passed="2" failed="1" warnings="0" inconclusive="0" skipped="0" asserts="3">
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-case id="0-1002" name="TestGetTimeJson" fullname="TestTask.Tests.TestGetTimeJson" methodname="TestGetTimeJson" classname="TestTask.Tests" runstate="Runnable" seed="1692320721" result="Passed" start-time="2021-07-30T18:39:40.5388031Z" end-time="2021-07-30T18:39:41.0147292Z" duration="0.475967" asserts="1" />
+        <test-case id="0-1003" name="TestGetTimeXml" fullname="TestTask.Tests.TestGetTimeXml" methodname="TestGetTimeXml" classname="TestTask.Tests" runstate="Runnable" seed="2074133512" result="Passed" start-time="2021-07-30T18:39:41.0177289Z" end-time="2021-07-30T18:39:41.0656019Z" duration="0.047682" asserts="1" />
+        <test-case id="0-1001" name="TestСonfigexXml" fullname="TestTask.Tests.TestСonfigexXml" methodname="TestСonfigexXml" classname="TestTask.Tests" runstate="Runnable" seed="2010407524" result="Failed" start-time="2021-07-30T18:39:41.0656019Z" end-time="2021-07-30T18:39:41.2558771Z" duration="0.190524" asserts="1">
+          <failure>
+            <message><![CDATA[  Expected: greater than or equal to 6
+  But was:  5
+]]></message>
+            <stack-trace><![CDATA[   в TestTask.Tests.<TestСonfigexXml>d__2.MoveNext() в D:\projects\TestTask\Tests.cs:строка 50
+--- Конец трассировка стека из предыдущего расположения, где возникло исключение ---
+   в System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess(Task task)
+   в System.Runtime.CompilerServices.TaskAwaiter.HandleNonSuccessAndDebuggerNotification(Task task)
+   в System.Runtime.CompilerServices.TaskAwaiter`1.GetResult()
+   в NUnit.Framework.Internal.TaskAwaitAdapter.GenericAdapter`1.BlockUntilCompleted()
+   в NUnit.Framework.Internal.MessagePumpStrategy.NoMessagePumpStrategy.WaitForCompletion(AwaitAdapter awaiter)
+   в NUnit.Framework.Internal.AsyncToSyncAdapter.Await(Func`1 invoke)
+   в NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(TestExecutionContext context)
+   в NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(TestExecutionContext context)
+   в NUnit.Framework.Internal.Execution.SimpleWorkItem.<>c__DisplayClass4_0.<PerformWork>b__0()
+   в NUnit.Framework.Internal.ContextUtils.<>c__DisplayClass1_0`1.<DoIsolated>b__0(Object _)
+]]></stack-trace>
+          </failure>
+          <assertions>
+            <assertion result="Failed">
+              <message><![CDATA[  Expected: greater than or equal to 6
+  But was:  5
+]]></message>
+              <stack-trace><![CDATA[   в TestTask.Tests.<TestСonfigexXml>d__2.MoveNext() в D:\projects\TestTask\Tests.cs:строка 50
+   в System.Runtime.CompilerServices.AsyncMethodBuilderCore.MoveNextRunner.InvokeMoveNext(Object stateMachine)
+]]></stack-trace>
+            </assertion>
+          </assertions>
+        </test-case>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
