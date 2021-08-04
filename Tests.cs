@@ -20,6 +20,52 @@ namespace TestTask
         }
 
         /// <summary>
+        /// Тестирование получения кадров из архива, для каналов сгруппированных в категорию Street.
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task TestGetArchiveFrames()
+        {
+            #region arrange
+            // URI, по которому отправляется запрос получения конфигурации каналов
+            string configexRequestUri = "http://demo.macroscop.com:8080/configex?login=root&password=";
+
+            // URI, по которому отправляется запрос получения кадра из архива
+            string archiveRequestUri = "http://demo.macroscop.com:8080/site?login=root&{0}&withcontenttype=true&mode=archive&resolutionx=500&resolutiony=500&streamtype=mainvideo&starttime={1}";
+
+            // время для кадра
+            DateTime startTime = DateTime.Now;
+            #endregion
+
+            #region act
+            // получение кофигурации каналов в виде строки
+            string configexResponseString = await _client.GetStringAsync(configexRequestUri);
+
+            // конфигурация каналов в виде XML-документа
+            XDocument configexXml = XDocument.Parse(configexResponseString);
+
+            // id каналов сгруппированных в категорию Street
+            var streetChannelsIds = configexXml.Root.Element("RootSecurityObject").Element("ChildSecurityObjects").Elements()
+                .First(element => element.Name.LocalName == "SecObjectInfo" && element.Attribute("Name").Value == "Street").Element("ChildChannels").Elements()
+                .Where(element => element.Name.LocalName == "ChannelId").Select(channel => channel.Value);
+
+            // получение кадров из архива
+            foreach (var id in streetChannelsIds)
+            {
+                // запрос
+                var frameResponse = await _client.GetAsync(string.Format(archiveRequestUri, id, startTime));
+                // проверка "успешности" запроса
+                frameResponse.EnsureSuccessStatusCode();
+            }
+            #endregion
+
+            #region assert
+            // Тест считается не проваленным, если не было вызвано исключений
+            Assert.Pass();
+            #endregion
+        }
+
+        /// <summary>
         /// Тестирование запроса конфигурации каналов сервера в XML формате.
         /// </summary>
         /// <returns></returns>
