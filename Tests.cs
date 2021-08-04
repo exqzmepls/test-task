@@ -31,7 +31,7 @@ namespace TestTask
             string configexRequestUri = "http://demo.macroscop.com:8080/configex?login=root&password=";
 
             // URI, по которому отправляется запрос получения кадра из архива
-            string archiveRequestUri = "http://demo.macroscop.com:8080/site?login=root&{0}&withcontenttype=true&mode=archive&resolutionx=500&resolutiony=500&streamtype=mainvideo&starttime={1}";
+            string archiveRequestUri = "http://demo.macroscop.com:8080/site?login=root&channelid={0}&withcontenttype=true&mode=archive&resolutionx=500&resolutiony=500&streamtype=mainvideo&starttime={1}";
 
             // время для кадра
             DateTime startTime = DateTime.Now;
