@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -41,9 +42,7 @@ namespace TestTask
             XDocument configexXml = await GetConfigexXml();
 
             // id каналов сгруппированных в категорию Street
-            var streetChannelsIds = configexXml.Root.Element("RootSecurityObject").Element("ChildSecurityObjects").Elements()
-                .First(element => element.Name.LocalName == "SecObjectInfo" && element.Attribute("Name").Value == "Street").Element("ChildChannels").Elements()
-                .Where(element => element.Name.LocalName == "ChannelId").Select(channel => channel.Value);
+            var streetChannelsIds = GetChannelsIdsByGroup(configexXml, "Street");
 
             // получение кадров из архива
             foreach (var id in streetChannelsIds)
@@ -165,6 +164,19 @@ namespace TestTask
             // Тест не провальный, если время в ответе не превышает локальное время на 15 секунд
             Assert.LessOrEqual(serverTime, localTime + inaccuracy);
             #endregion
+        }
+
+        /// <summary>
+        /// Получение id каналов, которые сгуппированы в катагорию.
+        /// </summary>
+        /// <param name="configexXml">XML-документ конфигурации каналов.</param>
+        /// <param name="groupName">Название категории.</param>
+        /// <returns>Коллекция id каналов, сгруппированных в указанную категорию.</returns>
+        private IEnumerable<string> GetChannelsIdsByGroup(XDocument configexXml, string groupName)
+        {
+            return configexXml.Root.Element("RootSecurityObject").Element("ChildSecurityObjects").Elements()
+                .First(element => element.Name.LocalName == "SecObjectInfo" && element.Attribute("Name").Value == groupName).Element("ChildChannels").Elements()
+                .Where(element => element.Name.LocalName == "ChannelId").Select(channel => channel.Value);
         }
 
         /// <summary>
