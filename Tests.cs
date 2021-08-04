@@ -1,5 +1,7 @@
 using NUnit.Framework;
 using System;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
@@ -52,10 +54,12 @@ namespace TestTask
             // получение кадров из архива
             foreach (var id in streetChannelsIds)
             {
-                // запрос
-                var frameResponse = await _client.GetAsync(string.Format(archiveRequestUri, id, startTime));
-                // проверка "успешности" запроса
-                frameResponse.EnsureSuccessStatusCode();
+                // получаем поток изображения
+                using (Stream frameStream = await _client.GetStreamAsync(string.Format(archiveRequestUri, id, startTime)))
+                {
+                    // кадр из полученного потока
+                    Image frame = Image.FromStream(frameStream);
+                }
             }
             #endregion
 
