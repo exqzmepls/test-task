@@ -29,9 +29,6 @@ namespace TestTask
         public async Task TestGetArchiveFrames()
         {
             #region arrange
-            // URI, по которому отправляется запрос получения конфигурации каналов
-            string configexRequestUri = "http://demo.macroscop.com:8080/configex?login=root&password=";
-
             // URI, по которому отправляется запрос получения кадра из архива
             string archiveRequestUri = "http://demo.macroscop.com:8080/site?login=root&channelid={0}&withcontenttype=true&mode=archive&resolutionx=500&resolutiony=500&streamtype=mainvideo&starttime={1}";
 
@@ -40,11 +37,8 @@ namespace TestTask
             #endregion
 
             #region act
-            // получение кофигурации каналов в виде строки
-            string configexResponseString = await _client.GetStringAsync(configexRequestUri);
 
-            // конфигурация каналов в виде XML-документа
-            XDocument configexXml = XDocument.Parse(configexResponseString);
+            XDocument configexXml = await GetConfigexXml();
 
             // id каналов сгруппированных в категорию Street
             var streetChannelsIds = configexXml.Root.Element("RootSecurityObject").Element("ChildSecurityObjects").Elements()
@@ -171,6 +165,22 @@ namespace TestTask
             // Тест не провальный, если время в ответе не превышает локальное время на 15 секунд
             Assert.LessOrEqual(serverTime, localTime + inaccuracy);
             #endregion
+        }
+
+        /// <summary>
+        /// Получение XML-документа с конфигурацией каналов.
+        /// </summary>
+        /// <returns>Объект задачи, представляющий асинхронную операцию.</returns>
+        private async Task<XDocument> GetConfigexXml()
+        {
+            // // URI, по которому отправляется запрос
+            string configexUri = "http://demo.macroscop.com:8080/configex?login=root&password=";
+
+            // получение кофигурации каналов в виде строки
+            string configexResponseString = await _client.GetStringAsync(configexUri);
+
+            // конфигурация каналов в виде XML-документа
+            return XDocument.Parse(configexResponseString);
         }
 
         /// <summary>
