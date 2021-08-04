@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
@@ -20,6 +21,82 @@ namespace TestTask
         public void SetUp()
         {
             _client = new HttpClient();
+        }
+
+        /// <summary>
+        /// Тестирование получения событий движения.
+        /// </summary>
+        /// <returns></returns>
+        [Test]
+        public async Task TestGetEventsJson()
+        {
+            #region arrange
+            // URI, по которому отправляется запрос событий с сервера
+            string eventRequestUri = "http://demo.macroscop.com:8080/event?login=root&responsetype=json&password=&channelid={0}&filter={1}";
+
+            // id события
+            string eventId = "00000000-0000-0000-0000-000000000033";
+
+            // события
+            Dictionary<string, int> eventsOnChannales = new Dictionary<string, int>();
+
+            // минимальное количество событий, чтобы тест был пройдет
+            const int minEventsToPass = 2;
+
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken cancellationToken = cancellationTokenSource.Token;
+
+            // время ожидания
+            TimeSpan timeout = TimeSpan.FromSeconds(10);
+            #endregion
+
+            #region act
+            // конфигурация каналов
+            XDocument configexXml = await GetConfigexXml();
+
+            // id каналов сгруппированных в категорию Street
+            var streetChannelsIds = GetChannelsIdsByGroup(configexXml, "Street");
+
+            // id каналов: запись архива не ведется постоянно и сгруппированных в категорию Street
+            var streetChannelsNotAlwaysOnIds = configexXml.Root.Element("Channels").Elements()
+                .Where(element => element.Name.LocalName == "ChannelInfo" && element.Attribute("ArchiveMode").Value != "AlwaysOn" && streetChannelsIds.Contains(element.Attribute("Id").Value))
+                .Select(element => element.Attribute("Id").Value);
+
+            // получение событий
+            foreach (var channelId in streetChannelsNotAlwaysOnIds)
+            {
+                // добавляем канал в словарь
+                eventsOnChannales.Add(channelId, 0);
+
+                Task<HttpResponseMessage> responseTask = _client.GetAsync(string.Format(eventRequestUri, channelId, eventId), cancellationToken);
+
+                // ожидание
+                var waitTask = Task.Run(() =>
+                {
+                    Thread.Sleep(timeout);
+                    if (!responseTask.IsCompleted) cancellationTokenSource.Cancel();
+                });
+
+                // получаем ответ
+                HttpResponseMessage response = await responseTask;
+                response.EnsureSuccessStatusCode();
+                // ответ в виде строки
+                string responseString = await response.Content.ReadAsStringAsync();
+
+                // список событий
+                var events = JsonSerializer.Deserialize<Event[]>(responseString);
+                // устанавливаем кол-во событий соответствующему каналу
+                eventsOnChannales[channelId] = events.Count();
+
+                // ожидаем выполнения задачи
+                await waitTask;
+            }
+            #endregion
+
+            #region assert
+            // Тест считается не проваленным, если было получено не менее двух событий для каналов удовлетворяющих необходимой сортировке
+            foreach (var events in eventsOnChannales) Assert.GreaterOrEqual(events.Value, minEventsToPass);
+            #endregion
         }
 
         /// <summary>
